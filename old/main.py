@@ -37,7 +37,7 @@ def create_table():
         with psycopg2.connect(
                 dbname="postgres",
                 user="postgres",
-                password="postgres",
+                password="KpSs2uR2",
                 host="localhost",
                 port="5432"
         ) as conn:
@@ -80,7 +80,7 @@ def insert_flats(data):
         with psycopg2.connect(
                 dbname="postgres",
                 user="postgres",
-                password="postgres",
+                password="KpSs2uR2",
                 host="localhost",
                 port="5432"
         ) as conn:
