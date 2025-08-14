@@ -52,6 +52,23 @@ services:
     networks:
       - app_network
 
+  python_app:
+    image: python:3.12-slim
+    container_name: python_app
+    working_dir: /app
+    volumes:
+      - ./old:/app
+    command: sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn main:app --reload --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:${POSTGRES_PORT}/${POSTGRES_DB}
+    networks:
+      - app_network
+
 networks:
   app_network:
     name: app_network
