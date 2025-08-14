@@ -145,6 +145,7 @@ def load_and_process_json():
                 logging.info("Запуск selenium")
                 # Настройки для "незаметной" работы
                 options = uc.ChromeOptions()
+                options.binary_location = '/usr/bin/google-chrome'  # Используем явный путь
                 options.add_argument("--headless")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--no-sandbox")
