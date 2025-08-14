@@ -145,10 +145,16 @@ def load_and_process_json():
                 logging.info("Запуск selenium")
                 # Настройки для "незаметной" работы
                 options = uc.ChromeOptions()
+                options.add_argument("--headless")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--no-sandbox")
                 options.add_argument("--start-maximized")
+                options.add_argument("--disable-dev-shm-usage")
                 options.add_argument("--disable-blink-features=AutomationControlled")
+                options.add_argument("--window-size=1920,1080")  # Фиксируем размер окна
+                options.add_argument("--disable-extensions")  # Отключаем расширения
+                options.add_argument("--disable-infobars")  # Отключаем инфо-бары
+                options.add_argument("--disable-notifications")  # Отключаем уведомления
 
                 url = "https://www.cian.ru/kupit-kvartiru-moskva-akademicheskiy-04100/"
                 # Запуск драйвера
