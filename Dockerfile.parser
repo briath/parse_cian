@@ -1,0 +1,27 @@
+FROM selenium/standalone-chrome:latest
+
+USER root
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    python3-dev \
+    gcc \
+    libpq-dev \
+    build-essential \
+    supervisor \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ./old ./old
+
+# права для логов
+RUN mkdir -p /app/old && chmod -R 777 /app/old
+
+CMD ["python", "old/main.py"]

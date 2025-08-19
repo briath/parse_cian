@@ -19,7 +19,7 @@ data_dict = {}  # сюда будем собирать карточки
 
 # Настройка логирования
 logging.basicConfig(
-    filename='parser.log',
+    filename=os.path.join(os.path.dirname(os.path.abspath(__file__)), "parser.log"),
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s'
 )
@@ -141,7 +141,8 @@ def insert_flats(data):
 def load_and_process_json():
     logging.info("Запуск основного процесса")
     try:
-        json_file_path = "flats.json"  # Укажите путь к вашему JSON-файлу
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # Папка, где лежит main.py
+        json_file_path = os.path.join(BASE_DIR, "flats.json")
 
         if os.path.exists(json_file_path):
             with open(json_file_path, "r", encoding="utf-8") as file:
@@ -254,7 +255,7 @@ def load_and_process_json():
                     driver.quit()
 
                     # Сохранение собранных данных в JSON
-                    with open("flats.json", "w", encoding="utf-8") as file_json:
+                    with open(json_file_path, "w", encoding="utf-8") as file_json:
                         json.dump(data_dict, file_json, ensure_ascii=False, indent=2)
 
                 # Вставка данных в БД
