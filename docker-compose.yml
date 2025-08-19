@@ -76,7 +76,6 @@ services:
         compress: "true"
     # Для работы Selenium в контейнере
     shm_size: '1gb'
-    user: root
     restart: unless-stopped
     networks:
       - app_network

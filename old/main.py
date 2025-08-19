@@ -39,7 +39,7 @@ def create_table():
                 dbname="postgres",
                 user="postgres",
                 password="postgres",
-                host="localhost",
+                host="postgres",
                 port=5432
         ) as conn:
             with conn.cursor() as cursor:
@@ -87,7 +87,7 @@ def insert_flats(data):
                 dbname="postgres",
                 user="postgres",
                 password="postgres",
-                host="localhost",
+                host="postgres",
                 port=5432
         ) as conn:
             with conn.cursor() as cursor:

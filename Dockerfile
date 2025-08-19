@@ -32,7 +32,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Создаем непривилегированного пользователя
-RUN useradd -m appuser && chown -R appuser /app && chmod -R 755 /app
+RUN useradd -m appuser && chown -R appuser /app && chmod -R 755 /app && chmod -R 755 /old
 USER appuser
 # Устанавливаем PYTHONPATH
 ENV PYTHONPATH=/app
