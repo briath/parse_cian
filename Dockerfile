@@ -36,5 +36,10 @@ RUN useradd -m appuser && chown -R appuser /app && chmod -R 755 /app
 USER appuser
 # Устанавливаем PYTHONPATH
 ENV PYTHONPATH=/app
-# Запуск FastAPI
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+
+RUN apt-get install -y supervisor \
+    && mkdir -p /var/log/supervisor
+
+COPY supervisord.conf /etc/supervisor/conf.d/
+
+CMD ["/usr/bin/supervisord", "-n"]

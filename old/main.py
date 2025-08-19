@@ -1,21 +1,18 @@
 import json
-import random
-import logging
 import os
-import time
 from datetime import datetime
 
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import psycopg2
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 from psycopg2 import extras
-from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import (
     TimeoutException, ElementClickInterceptedException
 )
 from bs4 import BeautifulSoup
 from commands import *
-import undetected_chromedriver as uc
 
 
 data_dict = {}  # сюда будем собирать карточки
@@ -28,18 +25,22 @@ logging.basicConfig(
 )
 
 
-
 def create_table():
     """Создает таблицу flats с улучшенной структурой и индексами."""
     conn = None
     try:
         # Используем контекстный менеджер для подключения
         with psycopg2.connect(
+                # dbname=os.getenv("POSTGRES_DB"),
+                # user=os.getenv("POSTGRES_USER"),
+                # password=os.getenv("POSTGRES_PASSWORD"),
+                # host=os.getenv("POSTGRES_HOST"),
+                # port=os.getenv("POSTGRES_PORT")
                 dbname="postgres",
                 user="postgres",
-                password="KpSs2uR2",
+                password="postgres",
                 host="localhost",
-                port="5432"
+                port=5432
         ) as conn:
             with conn.cursor() as cursor:
                 create_table_query = """
@@ -78,11 +79,16 @@ def insert_flats(data):
     conn = None
     try:
         with psycopg2.connect(
+                # dbname=os.getenv("POSTGRES_DB"),
+                # user=os.getenv("POSTGRES_USER"),
+                # password=os.getenv("POSTGRES_PASSWORD"),
+                # host=os.getenv("POSTGRES_HOST"),
+                # port=os.getenv("POSTGRES_PORT")
                 dbname="postgres",
                 user="postgres",
-                password="KpSs2uR2",
+                password="postgres",
                 host="localhost",
-                port="5432"
+                port=5432
         ) as conn:
             with conn.cursor() as cursor:
                 insert_query = """
@@ -144,31 +150,21 @@ def load_and_process_json():
 
                 logging.info("Запуск selenium")
                 # Настройки для "незаметной" работы
-                options = uc.ChromeOptions()
-                options.binary_location = '/usr/bin/google-chrome'  # Используем явный путь
+                options = Options()
                 options.add_argument("--headless")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--no-sandbox")
-                options.add_argument("--start-maximized")
                 options.add_argument("--disable-dev-shm-usage")
-                options.add_argument("--disable-blink-features=AutomationControlled")
-                options.add_argument("--window-size=1920,1080")  # Фиксируем размер окна
-                options.add_argument("--disable-extensions")  # Отключаем расширения
-                options.add_argument("--disable-infobars")  # Отключаем инфо-бары
-                options.add_argument("--disable-notifications")  # Отключаем уведомления
+                options.add_argument("--window-size=1920,1080")
+                # Запуск драйвера
+                # Ключевое изменение - подключение к Selenium Hub
+                driver = webdriver.Chrome(options=options)
 
                 url = "https://www.cian.ru/kupit-kvartiru-moskva-akademicheskiy-04100/"
-                # Запуск драйвера
-                driver = uc.Chrome(options=options)
+
                 driver.get(url)
 
                 time.sleep(random.uniform(3, 6))
-
-                # Прокрутка вниз и вверх для инициализации страницы
-                driver.execute_script("window.scrollBy(0, 500)")
-                time.sleep(random.uniform(1, 2))
-                driver.execute_script("window.scrollBy(0, -300)")
-                time.sleep(random.uniform(1, 2))
 
                 wait = WebDriverWait(driver, 10)
                 page_number = 1
@@ -188,14 +184,6 @@ def load_and_process_json():
                 try:
                     while True:
                         logging.info(f"Обрабатываем страницу {page_number}")
-                        for i in range(random.randint(1, 3)):
-                            # Прокрутка вниз
-                            driver.execute_script(f"window.scrollBy(0, {random.randint(400, 600)})")
-                            time.sleep(random.uniform(1, 2))
-
-                            # Прокрутка вверх
-                            driver.execute_script(f"window.scrollBy(0, {random.randint(-300, -100)})")
-                            time.sleep(random.uniform(1, 2))
 
                         soup = BeautifulSoup(driver.page_source, "html.parser")
                         listings = soup.find_all("article", {"data-name": "CardComponent"})
@@ -269,9 +257,6 @@ def load_and_process_json():
                     with open("flats.json", "w", encoding="utf-8") as file_json:
                         json.dump(data_dict, file_json, ensure_ascii=False, indent=2)
 
-                # Создание таблицы перед вставкой данных
-                create_table()
-
                 # Вставка данных в БД
                 insert_flats(data)
 
@@ -284,12 +269,17 @@ def load_and_process_json():
 
 # Таймер для загрузки и обработки JSON
 if __name__ == '__main__':
+    logging.info("Создание таблиц")
+    create_table()
     logging.info("Создание планировщика")
-    scheduler = BlockingScheduler()
-    scheduler.add_job(load_and_process_json, 'interval', days=1, next_run_time=datetime.now())  # Запускать каждый день
+    scheduler = BackgroundScheduler()  # Не блокирующий
+    scheduler.add_job(load_and_process_json, 'interval', days=1, next_run_time=datetime.now())
+    scheduler.start()
 
-    logging.info("Запуск планировщика...")
+    # Держим скрипт активным
     try:
-        scheduler.start()  # Блокирует выполнение, пока не будет остановлен
+        while True:
+            time.sleep(1)
     except (KeyboardInterrupt, SystemExit):
-        logging.info("Планировщик остановлен.")
+        scheduler.shutdown()
+        logging.info("Парсер остановлен")
