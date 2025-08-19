@@ -3,8 +3,8 @@ from sqlalchemy.orm import declarative_base
 from app.config import settings
 
 DATABASE_URL = (
-    f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}"
-    f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+    f"postgresql+asyncpg://{settings.POSTGRES_USER}:{settings.POSTGRES_PASSWORD}"
+    f"@{settings.POSTGRES_HOST}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
 )
 
 # async engine

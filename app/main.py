@@ -1,9 +1,9 @@
 import uvicorn
-from app.config import settings
-from app.db.create_database import create_database_if_not_exists
-from app.db.database import engine, Base
+from .config import settings
+from .db.create_database import create_database_if_not_exists
+from .db.database import engine, Base
 from fastapi import FastAPI
-from app.api.endpoints import flats  # Импортируем наш новый роутер
+from .api.endpoints import flats  # Импортируем наш новый роутер
 
 app = FastAPI(title="Parsed Data API")
 

@@ -9,29 +9,29 @@ def create_database_if_not_exists():
     try:
         # Пробуем подключиться к целевой базе
         conn = psycopg2.connect(
-            dbname=settings.DB_NAME,
-            user=settings.DB_USER,
-            password=settings.DB_PASSWORD,
-            host=settings.DB_HOST,
-            port=settings.DB_PORT
+            dbname=settings.POSTGRES_DB,
+            user=settings.POSTGRES_USER,
+            password=settings.POSTGRES_PASSWORD,
+            host=settings.POSTGRES_HOST,
+            port=settings.POSTGRES_PORT
         )
         conn.close()
-        print(f"✅ База данных '{settings.DB_NAME}' уже существует.")
+        print(f"✅ База данных '{settings.POSTGRES_DB}' уже существует.")
     except psycopg2.OperationalError as e:
         if "does not exist" in str(e):
-            print(f"⚠️  База '{settings.DB_NAME}' не найдена. Создаём...")
+            print(f"⚠️  База '{settings.POSTGRES_DB}' не найдена. Создаём...")
             conn = psycopg2.connect(
-                dbname="postgres",  # подключаемся к системной БД
-                user=settings.DB_USER,
-                password=settings.DB_PASSWORD,
-                host=settings.DB_HOST,
-                port=settings.DB_PORT
+                dbname=settings.POSTGRES_DB,
+                user=settings.POSTGRES_USER,
+                password=settings.POSTGRES_PASSWORD,
+                host=settings.POSTGRES_HOST,
+                port=settings.POSTGRES_PORT
             )
             conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             cur = conn.cursor()
-            cur.execute(f'CREATE DATABASE "{settings.DB_NAME}"')
+            cur.execute(f'CREATE DATABASE "{settings.POSTGRES_DB}"')
             cur.close()
             conn.close()
-            print(f"✅ База '{settings.DB_NAME}' успешно создана.")
+            print(f"✅ База '{settings.POSTGRES_DB}' успешно создана.")
         else:
             raise
