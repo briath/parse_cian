@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from datetime import datetime
 
@@ -182,9 +183,9 @@ def load_and_process_json():
                 driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
                 url = "https://www.cian.ru/kupit-kvartiru-moskva-akademicheskiy-04100/"
-
+                logging.info("Подключение к сайту")
                 driver.get(url)
-
+                logging.info("ПОДКЛЮЧИЛИСЬ!!!")
                 time.sleep(random.uniform(3, 6))
 
                 wait = WebDriverWait(driver, 10)
