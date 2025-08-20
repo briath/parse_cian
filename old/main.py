@@ -13,6 +13,7 @@ from selenium.common.exceptions import (
 )
 from bs4 import BeautifulSoup
 from commands import *
+from fake_useragent import UserAgent
 
 
 data_dict = {}  # сюда будем собирать карточки
@@ -151,15 +152,34 @@ def load_and_process_json():
 
                 logging.info("Запуск selenium")
                 # Настройки для "незаметной" работы
+
+                # Создаем объект для генерации случайных User-Agent
+                ua = UserAgent()
+
                 options = Options()
+                options.add_argument(f"user-agent={ua.random}")
                 options.add_argument("--headless")
                 options.add_argument("--disable-gpu")
                 options.add_argument("--no-sandbox")
                 options.add_argument("--disable-dev-shm-usage")
                 options.add_argument("--window-size=1920,1080")
+                options.add_experimental_option("excludeSwitches", ["enable-automation"])
+                options.add_experimental_option('useAutomationExtension', False)
+                options.add_argument("--disable-save-password-bubble")
+                options.add_argument("--disable-notifications")
+
+                prefs = {
+                    "profile.default_content_setting_values.notifications": 2,
+                    "credentials_enable_service": False,
+                    "profile.password_manager_enabled": False
+                }
+                options.add_experimental_option("prefs", prefs)
+                options.add_argument("--lang=ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7")
+                options.add_argument('--disable-blink-features=AutomationControlled')
                 # Запуск драйвера
                 # Ключевое изменение - подключение к Selenium Hub
                 driver = webdriver.Chrome(options=options)
+                driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
 
                 url = "https://www.cian.ru/kupit-kvartiru-moskva-akademicheskiy-04100/"
 
