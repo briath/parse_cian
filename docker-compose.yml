@@ -66,13 +66,22 @@ services:
     container_name: parser
     volumes:
       - ./old:/app/old
+      - ./logs:/app/logs  # Добавляем volume для логов
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      LOG_LEVEL: INFO  # Уровень логирования
+      LOG_FILE: /app/logs/parser.log  # Путь к файлу логов
     depends_on:
       postgres:
         condition: service_healthy
     shm_size: '1gb'
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+        compress: "true"
     networks:
       - app_network
 
@@ -83,3 +92,4 @@ networks:
 volumes:
   postgres-data:
   pgadmin-data:
+  logs:  # Новый volume для логов
