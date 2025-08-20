@@ -185,6 +185,7 @@ def load_and_process_json():
                 url = "https://www.cian.ru/kupit-kvartiru-moskva-akademicheskiy-04100/"
                 logging.info("Подключение к сайту")
                 driver.get(url)
+                print(driver.page_source)
                 logging.info("ПОДКЛЮЧИЛИСЬ!!!")
                 time.sleep(random.uniform(3, 6))
 
